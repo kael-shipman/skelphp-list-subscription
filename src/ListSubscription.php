@@ -3,6 +3,7 @@ namespace Skel;
 
 class ListSubscription extends \Skel\DataClass {
   public function __construct(array $elements=array(), Interfaces\Template $t=null) {
+    parent::__construct($elements, $t);
     $this->addDefinedFields(array('firstName','lastName','optIn','subscriptionKey','userEmail'));
     $this->set('optIn',false,true);
   }
@@ -50,10 +51,14 @@ class ListSubscription extends \Skel\DataClass {
 
   protected function typecheckAndConvertInput(string $field, $val) {
     if ($val === null) return $val;
-    if ($field == 'optIn') {
+    if ($field == 'id' ) {
+      if (!is_numeric($val)) throw new \InvalidArgumentException("Field `$field` must be numeric");
+      if ($this->get($field) !== null) throw new \InvalidArgumentException("You can't change an id that's already been set!");
+      return (int)$val;
+    } elseif ($field == 'optIn') {
       if (!is_bool($val)) throw new \InvalidArgumentException("Field `$field` must be a boolean value!");
       return (int)$val;
-    } elseif (array_search($val, array('firstName','lastName','subscriptionKey','userEmail')) === false) {
+    } elseif (array_search($field, array('firstName','lastName','subscriptionKey','userEmail')) !== false) {
       if (!is_string($val)) throw new \InvalidArgumentException("Field `$field` must be a string value!");
       return (string)$val;
     }

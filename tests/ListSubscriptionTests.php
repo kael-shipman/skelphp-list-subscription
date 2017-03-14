@@ -61,5 +61,34 @@ class ListSubscriptionTests extends \PHPUnit\Framework\TestCase {
     $s['userEmail'] = 'john.doe@example.com';
     $this->assertEquals(0, $s->numErrors());
   }
+
+  public function testCanSetNewId() {
+    $s = new \Skel\ListSubscription();
+    $s->updateFromUserInput(array(
+      'userEmail' => 'john.doe@example.com',
+      'subscriptionKey' => 'example-list',
+    ));
+    $this->assertNull($s['id']);
+    $s->set('id',  1);
+    $this->assertEquals(1, $s['id']);
+  }
+
+  public function testThrowsErrorOnResetingId() {
+    $s = new \Skel\ListSubscription();
+    $s->updateFromUserInput(array(
+      'userEmail' => 'john.doe@example.com',
+      'subscriptionKey' => 'example-list',
+    ));
+    $this->assertNull($s['id']);
+    $s->set('id',  1);
+    $this->assertEquals(1, $s['id']);
+
+    try {
+      $s['id'] = 2;
+      $this->fail('Should have thrown error on reset id');
+    } catch (InvalidArgumentException $e) {
+      $this->assertTrue(true, 'This is the expected behavior');
+    }
+  }
 }
 
