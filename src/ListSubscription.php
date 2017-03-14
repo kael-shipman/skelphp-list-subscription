@@ -9,27 +9,31 @@ class ListSubscription extends \Skel\DataClass {
 
   protected function validateField(string $field) {
     $val = $this[$field];
-    $error = null;
+    $errors = false;
     $required = array(
       'userEmail' => "You must provide a valid email address so we can send you your subscription!",
       'subscriptionKey' => "Hm... Something seems to be up on our end. We lost the subscription key! Please check back later to see if this is fixed.",
     );
 
     if ($field == 'userEmail') {
-      if (!preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i', $val)) $error = $required['userEmail'];
+      if (!preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i', $val)) {
+        $this->setError($field, $required[$field], 'format');
+        $errors = true;
+      } else {
+        $this->clearError($field, 'format');
+      }
     } else {
-      if (!$val === '' || $val === null) $error = $required[$field];
+      if (array_key_exists($field, $required) && (!$val === '' || $val === null)) {
+        $this->setError($field, $required[$field], 'presence');
+        $errors = true;
+      } else {
+        $this->clearError($field, 'presence');
+      }
     }
 
     // should figure out how to validate subscription key
 
-    if ($error) {
-      $this->setError($field, $error);
-      return false;
-    } else {
-      $this->clearError($field);
-      return true;
-    }
+    return !$errors;
   }
 
   public function validateObject(\Skel\Interfaces\Db $db) {
